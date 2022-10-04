@@ -44,3 +44,4 @@ def decrypt_vigenere(ciphertext: str, keyword: str) -> str:
                 char = chr(ord(char) + 26)
         plaintext += char
     return plaintext
+
