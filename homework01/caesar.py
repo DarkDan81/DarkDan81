@@ -1,46 +1,32 @@
-import typing as tp
-
-
 def encrypt_caesar(plaintext: str, shift: int = 3) -> str:
-    """
-    Encrypts plaintext using a Caesar cipher.
-
-    >>> encrypt_caesar("PYTHON")
-    'SBWKRQ'
-    >>> encrypt_caesar("python")
-    'sbwkrq'
-    >>> encrypt_caesar("Python3.6")
-    'Sbwkrq3.6'
-    >>> encrypt_caesar("")
-    ''
-    """
     ciphertext = ""
-    # PUT YOUR CODE HERE
+    for i in range(len(plaintext)):
+        char = plaintext[i]
+        if ord(char) >= 65 and ord(char) <= 90:
+            char = chr(ord(char) + shift)
+            if ord(char) > 90:
+                char = chr(ord(char) - 26)
+        elif ord(char) >= 97 and ord(char) <= 122:
+            char = chr(ord(char) + shift)
+            if ord(char) > 122:
+                char = chr(ord(char) - 26)
+        ciphertext += char
+
     return ciphertext
 
 
 def decrypt_caesar(ciphertext: str, shift: int = 3) -> str:
-    """
-    Decrypts a ciphertext using a Caesar cipher.
-
-    >>> decrypt_caesar("SBWKRQ")
-    'PYTHON'
-    >>> decrypt_caesar("sbwkrq")
-    'python'
-    >>> decrypt_caesar("Sbwkrq3.6")
-    'Python3.6'
-    >>> decrypt_caesar("")
-    ''
-    """
     plaintext = ""
-    # PUT YOUR CODE HERE
+    for i in range(len(ciphertext)):
+        char = ciphertext[i]
+        if ord(char) >= 65 and ord(char) <= 90:
+            char = chr(ord(char) - shift)
+            if ord(char) < 65:
+                char = chr(ord(char) + 26)
+        elif ord(char) >= 97 and ord(char) <= 122:
+            char = chr(ord(char) - shift)
+            if ord(char) < 97:
+                char = chr(ord(char) + 26)
+        plaintext += char
+
     return plaintext
-
-
-def caesar_breaker_brute_force(ciphertext: str, dictionary: tp.Set[str]) -> int:
-    """
-    Brute force breaking a Caesar cipher.
-    """
-    best_shift = 0
-    # PUT YOUR CODE HERE
-    return best_shift
