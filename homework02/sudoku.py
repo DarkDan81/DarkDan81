@@ -54,7 +54,7 @@ def get_col(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str
     result = []
     n = pos[1]
     for i in grid:
-        result.append(i[n])
+        result.append(str(i[n]))
     return result
 
 
@@ -65,7 +65,7 @@ def get_block(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[s
     for i in range(3):
         x = grid[(row * 3) - 3 + i]
         for j in range(3):
-            result.append(x[(col * 3) - 3 + j])
+            result.append(str(x[(col * 3) - 3 + j]))
     return result
 
 
@@ -81,10 +81,8 @@ def find_empty_positions(
 
 
 def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.Set[str]:
-    row = set(get_row(grid, pos)) - {"."}
-    col = set(get_col(grid, pos)) - {"."}
-    grid = set(get_block(grid, pos)) - {"."}
-    return set(map(str, range(1, len(grid) + 1))) - row - col - grid
+    values = set("123456789")
+    return values - set(get_row(grid, pos)) - set(get_col(grid, pos)) - set(get_block(grid, pos))
 
 
 def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
