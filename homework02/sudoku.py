@@ -34,55 +34,40 @@ def display(grid: tp.List[tp.List[str]]) -> None:
 
 
 def group(values: tp.List[T], n: int) -> tp.List[tp.List[T]]:
-    """
-    Сгруппировать значения values в список, состоящий из списков по n элементов
 
-    >>> group([1,2,3,4], 2)
-    [[1, 2], [3, 4]]
-    >>> group([1,2,3,4,5,6,7,8,9], 3)
-    [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-    """
-    pass
+    result = []
+    x = 0
+    for i in range(n):
+        results = []
+        for j in range(n):
+            results.append(values[x])
+            x += 1
+        result.append(results)
+    return result
 
 
 def get_row(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str]:
-    """Возвращает все значения для номера строки, указанной в pos
-
-    >>> get_row([['1', '2', '.'], ['4', '5', '6'], ['7', '8', '9']], (0, 0))
-    ['1', '2', '.']
-    >>> get_row([['1', '2', '3'], ['4', '.', '6'], ['7', '8', '9']], (1, 0))
-    ['4', '.', '6']
-    >>> get_row([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']], (2, 0))
-    ['.', '8', '9']
-    """
-    pass
+    n = pos[0]
+    return grid[n]
 
 
 def get_col(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str]:
-    """Возвращает все значения для номера столбца, указанного в pos
-
-    >>> get_col([['1', '2', '.'], ['4', '5', '6'], ['7', '8', '9']], (0, 0))
-    ['1', '4', '7']
-    >>> get_col([['1', '2', '3'], ['4', '.', '6'], ['7', '8', '9']], (0, 1))
-    ['2', '.', '8']
-    >>> get_col([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']], (0, 2))
-    ['3', '6', '9']
-    """
-    pass
+    result = []
+    n = pos[1]
+    for i in grid:
+        result.append(i[n])
+    return result
 
 
 def get_block(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str]:
-    """Возвращает все значения из квадрата, в который попадает позиция pos
-
-    >>> grid = read_sudoku('puzzle1.txt')
-    >>> get_block(grid, (0, 1))
-    ['5', '3', '.', '6', '.', '.', '.', '9', '8']
-    >>> get_block(grid, (4, 7))
-    ['.', '.', '3', '.', '.', '1', '.', '.', '6']
-    >>> get_block(grid, (8, 8))
-    ['2', '8', '.', '.', '.', '5', '.', '7', '9']
-    """
-    pass
+    result = []
+    row = (pos[0] // 3) + 1
+    col = (pos[1] // 3) + 1
+    for i in range(3):
+        x = grid[(row * 3) - 3 + i]
+        for j in range(3):
+            result.append(x[(col * 3) - 3 + j])
+    return result
 
 
 def find_empty_positions(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.Tuple[int, int]]:
