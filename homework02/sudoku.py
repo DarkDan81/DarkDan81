@@ -80,8 +80,7 @@ def find_empty_positions(
     return None
 
 
-def find_possible_values(
-    grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.Set[str]:
+def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.Set[str]:
     row = set(get_row(grid, pos)) - {"."}
     col = set(get_col(grid, pos)) - {"."}
     grid = set(get_block(grid, pos)) - {"."}
