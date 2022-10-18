@@ -1,5 +1,6 @@
 import pathlib
 import typing as tp
+import random
 
 T = tp.TypeVar("T")
 
@@ -80,7 +81,12 @@ def find_empty_positions(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.Tuple[in
     >>> find_empty_positions([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']])
     (2, 0)
     """
-    pass
+    n = len(grid)
+    for i in range(n):
+        for j in range(n):
+            if grid[i][j] == ".":
+                return i, j
+    return None
 
 
 def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.Set[str]:
@@ -94,7 +100,10 @@ def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -
     >>> values == {'2', '5', '9'}
     True
     """
-    pass
+    row = set(get_row(grid, pos)) - {"."}
+    col = set(get_col(grid, pos)) - {"."}
+    grid = set(get_block(grid, pos)) - {"."}
+    return set(map(str, range(1, len(grid) + 1))) - row - col - grid
 
 
 def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
@@ -110,13 +119,33 @@ def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
     >>> solve(grid)
     [['5', '3', '4', '6', '7', '8', '9', '1', '2'], ['6', '7', '2', '1', '9', '5', '3', '4', '8'], ['1', '9', '8', '3', '4', '2', '5', '6', '7'], ['8', '5', '9', '7', '6', '1', '4', '2', '3'], ['4', '2', '6', '8', '5', '3', '7', '9', '1'], ['7', '1', '3', '9', '2', '4', '8', '5', '6'], ['9', '6', '1', '5', '3', '7', '2', '8', '4'], ['2', '8', '7', '4', '1', '9', '6', '3', '5'], ['3', '4', '5', '2', '8', '6', '1', '7', '9']]
     """
-    pass
+    empty_pos = find_empty_positions(grid)
+    if empty_pos is None:
+        return grid
+    else:
+        possble_vallue = find_possible_values(grid, empty_pos)
+        for i in possble_vallue:
+            grid[empty_pos[0]][empty_pos[1]] = i
+            if solve(grid):
+                return grid
+            grid[empty_pos[0]][empty_pos[1]] = "."
+    return None
 
 
 def check_solution(solution: tp.List[tp.List[str]]) -> bool:
     """ Если решение solution верно, то вернуть True, в противном случае False """
     # TODO: Add doctests with bad puzzles
-    pass
+    for i in range(len(solution)):
+        for j in range(len(solution)):
+            if solution[i][j] == ".":
+                return False
+            if len(set(get_row(solution, (i, j)))) != 9:
+                return False
+            if len(set(get_col(solution, (i, j)))) != 9:
+                return False
+            if len(set(get_block(solution, (i, j)))) != 9:
+                return False
+    return True
 
 
 def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
@@ -141,8 +170,17 @@ def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
     >>> check_solution(solution)
     True
     """
-    pass
-
+    grid = solve([["."] * 9 for _ in range(9)])
+    while grid is None:
+        grid = solve([["."] * 9 for _ in range(9)])
+    count = 0
+    while count < 81 - N:
+        i = random.randint(0, 8)
+        j = random.randint(0, 8)
+        if grid[i][j] != ".":
+            grid[i][j] = "."
+            count += 1
+    return grid
 
 if __name__ == "__main__":
     for fname in ["puzzle1.txt", "puzzle2.txt", "puzzle3.txt"]:
