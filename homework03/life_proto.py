@@ -44,7 +44,7 @@ class GameOfLife:
         self.screen.fill(pygame.Color("white"))
 
         # Создание списка клеток
-        # PUT YOUR CODE HERE
+        self.grid = self.create_grid(randomize=True)
 
         running = True
         while running:
@@ -55,7 +55,9 @@ class GameOfLife:
 
             # Отрисовка списка клеток
             # Выполнение одного шага игры (обновление состояния ячеек)
-            # PUT YOUR CODE HERE
+            self.draw_grid()
+            self.draw_lines()
+            self.grid = self.get_next_generation()
 
             pygame.display.flip()
             clock.tick(self.speed)
@@ -79,29 +81,27 @@ class GameOfLife:
         out : Grid
             Матрица клеток размером `cell_height` х `cell_width`.
         """
-        a = []
-        if randomize == False:
-            for i in range(0, self.cell_height):
-                b = []
-                for j in range(0, self.cell_width):
-                    b.append(0)
-                a.append(b)
-        else:
-            for i in range(0, self.cell_height):
-                b = []
-                for j in range(0, self.cell_width):
-                    t = random.randint(0, 1)
-                    b.append(t)
-                a.append(b)
-
-        return a
+        return [
+            [random.randint(0, 1) if randomize else 0 for _ in range(self.cell_height)]
+            for _ in range(self.cell_width)
+        ]
 
     def draw_grid(self) -> None:
         """
         Отрисовка списка клеток с закрашиванием их в соответствующе цвета.
         """
-        pass
-
+        for i in range(self.cell_width):
+            for j in range(self.cell_height):
+                pygame.draw.rect(
+                    self.screen,
+                    pygame.Color("green") if self.grid[i][j] else pygame.Color("white"),
+                    (
+                        i * self.cell_size,
+                        j * self.cell_size,
+                        self.cell_size,
+                        self.cell_size,
+                    ),
+                )
     def get_neighbours(self, cell: Cell) -> Cells:
         """
         Вернуть список соседних клеток для клетки `cell`.
@@ -120,75 +120,23 @@ class GameOfLife:
         out : Cells
             Список соседних клеток.
         """
-        a = []
-        if cell[0] == 0 and cell[1] == 0:
-            a.append(self.grid[0][1])
-            a.append(self.grid[1][1])
-            a.append(self.grid[1][0])
-            return a
-        if cell[0] == self.cell_height - 1 and cell[1] == self.cell_width - 1:
-            return [
-                self.grid[self.cell_height - 1][self.cell_width - 2],
-                self.grid[self.cell_height - 2][self.cell_width - 2],
-                self.grid[self.cell_height - 2][self.cell_width - 1],
-            ]
-        if cell[0] == 0 and cell[1] == self.cell_width - 1:
-            return [
-                self.grid[self.cell_height - 2][0],
-                self.grid[self.cell_height - 1][1],
-                self.grid[self.cell_height - 2][1],
-            ]
-        if cell[0] == self.cell_height - 1 and cell[1] == 0:
-            return [
-                self.grid[0][self.cell_width - 2],
-                self.grid[1][self.cell_width - 2],
-                self.grid[1][self.cell_width - 1],
-            ]
-        if cell[1] == 0:
-            return [
-                self.grid[cell[0] - 1][0],
-                self.grid[cell[0] + 1][0],
-                self.grid[cell[0]][1],
-                self.grid[cell[0] - 1][1],
-                self.grid[cell[0] + 1][1],
-            ]
-        if cell[0] == 0:
-            return [
-                self.grid[0][cell[1] - 1],
-                self.grid[0][cell[1] + 1],
-                self.grid[1][cell[1]],
-                self.grid[1][cell[1] - 1],
-                self.grid[1][cell[1] + 1],
-            ]
-        if cell[1] == self.cell_width - 1:
-            return [
-                self.grid[cell[0] - 1][self.cell_width - 1],
-                self.grid[cell[0] - 1][self.cell_width - 2],
-                self.grid[cell[0]][self.cell_width - 2],
-                self.grid[cell[0] + 1][self.cell_width - 1],
-                self.grid[cell[0] + 1][self.cell_width - 2],
-            ]
-        if cell[0] == self.cell_height - 1:
-            return [
-                self.grid[self.cell_height - 1][cell[1] - 1],
-                self.grid[self.cell_height - 1][cell[1] + 1],
-                self.grid[self.cell_height - 2][cell[1] - 1],
-                self.grid[self.cell_height - 2][cell[1]],
-                self.grid[self.cell_height - 2][cell[1] + 1],
-            ]
-
-        y = cell[0]
-        x = cell[1]
-        return [
-            self.grid[y - 1][x - 1],
-            self.grid[y - 1][x],
-            self.grid[y - 1][x + 1],
-            self.grid[y][x - 1],
-            self.grid[y][x + 1],
-            self.grid[y + 1][x - 1],
-            self.grid[y + 1][x],
-            self.grid[y + 1][x + 1],
-        ]
+        m = []
+        for i, j in (
+                (-1, -1),
+                (-1, 0),
+                (-1, 1),
+                (0, -1),
+                (0, 1),
+                (1, -1),
+                (1, 0),
+                (1, 1),
+        ):
+            if cell[0] + i >= 0 and cell[1] + j >= 0:
+                try:
+                    m.append(self.grid[cell[0] + i][cell[1] + j])
+                except IndexError:
+                    pass
+        return m
 
     def get_next_generation(self) -> Grid:
         """
