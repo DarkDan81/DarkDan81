@@ -33,3 +33,4 @@ class Console(UI):
             self.life.step()
             time.sleep(1)
         curses.endwin()
+        
