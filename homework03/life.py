@@ -1,6 +1,7 @@
 import pathlib
 import random
 import typing as tp
+from copy import deepcopy
 
 import pygame
 from pygame.locals import *
@@ -8,6 +9,7 @@ from pygame.locals import *
 Cell = tp.Tuple[int, int]
 Cells = tp.List[int]
 Grid = tp.List[Cells]
+curr_generation = tp.List[Cells]
 
 
 class GameOfLife:
@@ -29,140 +31,161 @@ class GameOfLife:
         self.generations = 1
 
     def create_grid(self, randomize: bool = False) -> Grid:
+        # Copy from previous assignment
         a = []
-        if randomize == False:
-            for i in range(0, self.rows):
-                b = []
-                for j in range(0, self.cols):
+        for i in range(self.rows):
+            b = []
+            for j in range(self.cols):
+                if randomize:
+                    b.append(random.choice((0, 1)))
+                else:
                     b.append(0)
-                a.append(b)
-        else:
-            for i in range(0, self.rows):
-                b = []
-                for j in range(0, self.cols):
-                    t = random.randint(0, 1)
-                    b.append(t)
-                a.append(b)
+            a.append(b)
         return a
 
     def get_neighbours(self, cell: Cell) -> Cells:
+        # Copy from previous assignment
+        x, y = cell
         a = []
-        if cell[0] == 0 and cell[1] == 0:
-            a.append(self.curr_generation[0][1])
-            a.append(self.curr_generation[1][1])
-            a.append(self.curr_generation[1][0])
-            return a
-        if cell[0] == self.rows - 1 and cell[1] == self.cols - 1:
-            return [
-                self.curr_generation[self.rows - 1][self.cols - 2],
-                self.curr_generation[self.rows - 2][self.cols - 2],
-                self.curr_generation[self.rows - 2][self.cols - 1],
-            ]
-        if cell[0] == 0 and cell[1] == self.cols - 1:
-            return [
-                self.curr_generation[self.rows - 2][0],
-                self.curr_generation[self.rows - 1][1],
-                self.curr_generation[self.rows - 2][1],
-            ]
-        if cell[0] == self.rows - 1 and cell[1] == 0:
-            return [
-                self.curr_generation[0][self.cols - 2],
-                self.curr_generation[1][self.cols - 2],
-                self.curr_generation[1][self.cols - 1],
-            ]
-        if cell[1] == 0:
-            return [
-                self.curr_generation[cell[0] - 1][0],
-                self.curr_generation[cell[0] + 1][0],
-                self.curr_generation[cell[0]][1],
-                self.curr_generation[cell[0] - 1][1],
-                self.curr_generation[cell[0] + 1][1],
-            ]
-        if cell[0] == 0:
-            return [
-                self.curr_generation[0][cell[1] - 1],
-                self.curr_generation[0][cell[1] + 1],
-                self.curr_generation[1][cell[1]],
-                self.curr_generation[1][cell[1] - 1],
-                self.curr_generation[1][cell[1] + 1],
-            ]
-        if cell[1] == self.cols - 1:
-            return [
-                self.curr_generation[cell[0] - 1][self.cols - 1],
-                self.curr_generation[cell[0] - 1][self.cols - 2],
-                self.curr_generation[cell[0]][self.cols - 2],
-                self.curr_generation[cell[0] + 1][self.cols - 1],
-                self.curr_generation[cell[0] + 1][self.cols - 2],
-            ]
-        if cell[0] == self.rows - 1:
-            return [
-                self.curr_generation[self.rows - 1][cell[1] - 1],
-                self.curr_generation[self.rows - 1][cell[1] + 1],
-                self.curr_generation[self.rows - 2][cell[1] - 1],
-                self.curr_generation[self.rows - 2][cell[1]],
-                self.curr_generation[self.rows - 2][cell[1] + 1],
-            ]
+        if x == 0 and y == 0:  # левый верхний угол
+            a.extend(
+                [
+                    self.curr_generation[x + 1][y],
+                    self.curr_generation[x][y + 1],
+                    self.curr_generation[x + 1][y + 1],
+                ]
+            )
+        elif x == 0 and y == self.cols - 1:  # правый верхний угол
+            a.extend(
+                [
+                    self.curr_generation[x][y - 1],
+                    self.curr_generation[x + 1][y],
+                    self.curr_generation[x + 1][y - 1],
+                ]
+            )
+        elif x == 0 and y != self.cols - 1 and y != 0:  # верхняя строка
+            a.extend(
+                [
+                    self.curr_generation[x][y - 1],
+                    self.curr_generation[x + 1][y],
+                    self.curr_generation[x][y + 1],
+                    self.curr_generation[x + 1][y + 1],
+                    self.curr_generation[x + 1][y - 1],
+                ]
+            )
+        elif x == self.rows - 1 and y == 0:  # левый нижний угол
+            a.extend(
+                [
+                    self.curr_generation[x - 1][y],
+                    self.curr_generation[x][y + 1],
+                    self.curr_generation[x - 1][y + 1],
+                ]
+            )
+        elif x == self.rows - 1 and y == self.cols - 1:  # правый нижний угол
+            a.extend(
+                [
+                    self.curr_generation[x][y - 1],
+                    self.curr_generation[x - 1][y],
+                    self.curr_generation[x - 1][y - 1],
+                ]
+            )
+        elif x == self.rows - 1 and y != 0 and y != self.cols - 1:  # нижняя строка
+            a.extend(
+                [
+                    self.curr_generation[x - 1][y],
+                    self.curr_generation[x - 1][y - 1],
+                    self.curr_generation[x - 1][y + 1],
+                    self.curr_generation[x][y - 1],
+                    self.curr_generation[x][y + 1],
+                ]
+            )
+        elif y == 0 and x != 0 and x != self.rows - 1:  # левый стоблик
+            a.extend(
+                [
+                    self.curr_generation[x + 1][y],
+                    self.curr_generation[x - 1][y],
+                    self.curr_generation[x][y + 1],
+                    self.curr_generation[x - 1][y + 1],
+                    self.curr_generation[x + 1][y + 1],
+                ]
+            )
+        elif y == self.cols - 1 and x != 0 and x != self.rows - 1:  # правый столбк
+            a.extend(
+                [
+                    self.curr_generation[x][y - 1],
+                    self.curr_generation[x - 1][y],
+                    self.curr_generation[x + 1][y],
+                    self.curr_generation[x - 1][y - 1],
+                    self.curr_generation[x + 1][y - 1],
+                ]
+            )
+        else:
+            a.extend(
+                [
+                    self.curr_generation[x + 1][y],
+                    self.curr_generation[x - 1][y],
+                    self.curr_generation[x][y + 1],
+                    self.curr_generation[x][y - 1],
+                    self.curr_generation[x - 1][y + 1],
+                    self.curr_generation[x - 1][y - 1],
+                    self.curr_generation[x + 1][y + 1],
+                    self.curr_generation[x + 1][y - 1],
+                ]
+            )
+        return a
 
-        y = cell[0]
-        x = cell[1]
-        return [
-            self.curr_generation[y - 1][x - 1],
-            self.curr_generation[y - 1][x],
-            self.curr_generation[y - 1][x + 1],
-            self.curr_generation[y][x - 1],
-            self.curr_generation[y][x + 1],
-            self.curr_generation[y + 1][x - 1],
-            self.curr_generation[y + 1][x],
-            self.curr_generation[y + 1][x + 1],
-        ]
-
-    def get_next_generation(self) -> Grid:
-        new_grid = []
-        for i in range(0, self.rows):
-            b = []
-            for j in range(0, self.cols):
-                b.append(self.curr_generation[i][j])
-            new_grid.append(b)
-        for i in range(0, self.rows):
-            for j in range(0, self.cols):
-                if (
-                    sum(self.get_neighbours((i, j))) != 2 and sum(self.get_neighbours((i, j))) != 3
-                ) and self.curr_generation[i][j] == 1:
-                    new_grid[i][j] = 0
-                elif sum(self.get_neighbours((i, j))) == 3 and self.curr_generation[i][j] == 0:
-                    new_grid[i][j] = 1
-
-        return new_grid
+    def get_next_generation(self) -> curr_generation:
+        # Copy from previous assignment
+        res = deepcopy(self.curr_generation)
+        for i in range(self.rows):
+            for j in range(self.cols):
+                neighbours = sum(self.get_neighbours((i, j)))
+                if (neighbours != 2 and neighbours != 3) and self.curr_generation[i][j] == 1:
+                    res[i][j] = 0
+                elif neighbours == 3 and self.curr_generation[i][j] == 0:
+                    res[i][j] = 1
+        return res
 
     def step(self) -> None:
-        self.prev_generation = self.curr_generation.copy()
+        """
+        Выполнить один шаг игры.
+        """
+        self.prev_generation = self.curr_generation
         self.curr_generation = self.get_next_generation()
         self.generations += 1
 
     @property
     def is_max_generations_exceeded(self) -> bool:
-        if self.max_generations is None:
-            self.max_generations = 1
-        if self.generations >= self.max_generations:
-            return True
-
-        return False
+        """
+        Не превысило ли текущее число поколений максимально допустимое.
+        """
+        return self.generations == self.max_generations
 
     @property
     def is_changing(self) -> bool:
-        if self.generations == 20:
-            return False
-        return True
+        """
+        Изменилось ли состояние клеток с предыдущего шага.
+        """
+        return self.curr_generation != self.prev_generation
 
     @staticmethod
     def from_file(filename: pathlib.Path) -> "GameOfLife":
         """
         Прочитать состояние клеток из указанного файла.
         """
-        pass
+        with open(filename, "rt", encoding="utf-8") as f:
+            data = f.readlines()
+        print(data, type(data))
+        for i in range(len(data)):
+            data[i] = list(map(int, list(data[i].rstrip())))
+        game = GameOfLife((len(data[0]), len(data)))
+        game.curr_generation = data
+        return game
 
     def save(self, filename: pathlib.Path) -> None:
         """
         Сохранить текущее состояние клеток в указанный файл.
         """
-        pass
+        data = "\n".join(map(lambda x: "".join(map(str, x)), self.curr_generation))
+        with open(filename, "wt", encoding="utf-8") as f:
+            f.write(data)
