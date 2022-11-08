@@ -189,3 +189,4 @@ class GameOfLife:
         data = "\n".join(map(lambda x: "".join(map(str, x)), self.curr_generation))
         with open(filename, "wt", encoding="utf-8") as f:
             f.write(data)
+            
