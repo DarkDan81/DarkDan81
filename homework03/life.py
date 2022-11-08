@@ -185,3 +185,4 @@ class GameOfLife:
             for c in i:
                 f.write(str(c))
             f.write("\n")
+            
