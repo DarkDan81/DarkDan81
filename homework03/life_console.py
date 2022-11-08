@@ -1,5 +1,4 @@
 import curses
-import time
 
 from life import GameOfLife
 from ui import UI
@@ -10,26 +9,32 @@ class Console(UI):
         super().__init__(life)
 
     def draw_borders(self, screen) -> None:
-        curses.resizeterm(self.life.rows + 2, self.life.cols + 2)
+        """Отобразить рамку."""
         screen.border("|", "|", "-", "-", "+", "+", "+", "+")
 
     def draw_grid(self, screen) -> None:
-        grid = self.life.curr_generation
-        for i in range(len(grid)):
-            line = ""
-            for j in range(len(grid[i])):
-                if grid[i][j] == 1:
-                    line += "*"
+        """Отобразить состояние клеток."""
+        for x in range(self.life.rows):
+            for y in range(self.life.cols):
+                if self.life.curr_generation[x][y] == 1:
+                    screen.addch(x + 1, y + 1, "#")
                 else:
-                    line += " "
-            screen.addstr(i + 1, 1, line)
+                    screen.addch(x + 1, y + 1, " ")
 
     def run(self) -> None:
-        while self.life.is_changing and self.life.is_max_generations_exceeded:
-            screen = curses.initscr()
-            screen.clear()
+        screen = curses.initscr()
+        # PUT YOUR CODE HERE
+        while True:
             self.draw_borders(screen)
             self.draw_grid(screen)
+            screen.refresh()
             self.life.step()
-            time.sleep(1)
-        curses.endwin()
+            if screen.getch() == 32:  # space
+                curses.endwin()
+                break
+
+
+if __name__ == "__main__":
+    life = GameOfLife((24, 80), max_generations=50)
+    ui = Console(life)
+    ui.run()
